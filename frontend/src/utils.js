@@ -12,4 +12,4 @@ function toDataUrl(url, callback) {
   xhr.send();
 }
 
-export { toDataUrl };
+export {toDataUrl};

@@ -9,7 +9,7 @@ import time
 import os
 import base64
 
-import boto3
+# import boto3
 import numpy as np
 from PIL import Image
 
@@ -19,6 +19,11 @@ from torch.autograd import Variable
 import torchvision.utils as vutils
 from network.Transformer import Transformer
 
+from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
+
+app = Flask(__name__)
+cors = CORS(app, origins=['http://localhost:3000'])
 
 def img_to_base64_str(img):
     buffered = BytesIO()
@@ -29,15 +34,15 @@ def img_to_base64_str(img):
     return img_str
 
 
-def load_models(s3, bucket):
+def load_models():
 
     styles = ["Hosoda", "Hayao", "Shinkai", "Paprika"]
     models = {}
 
     for style in styles:
         model = Transformer()
-        response = s3.get_object(Bucket=bucket, Key=f"models/{style}_net_G_float.pth")
-        state = torch.load(BytesIO(response["Body"].read()))
+        # response = s3.get_object(Bucket=bucket, Key=f"models/{style}_net_G_float.pth")
+        state = torch.load(os.path.join("D:/Web Development Course/Cartoonify 2/cartoonify/backend/src/pretrained_models/", style + '_net_G_float.pth'))
         model.load_state_dict(state)
         model.eval()
         models[style] = model
@@ -47,26 +52,27 @@ def load_models(s3, bucket):
 
 gpu = -1
 
-s3 = boto3.client("s3")
-bucket = "cartoongan"
+# s3 = boto3.client("s3")
+# bucket = "cartoongan"
 
 mapping_id_to_style = {0: "Hosoda", 1: "Hayao", 2: "Shinkai", 3: "Paprika"}
 
-models = load_models(s3, bucket)
+models = load_models()
 print(f"models loaded ...")
 
-
-def lambda_handler(event, context):
+@app.route("/cartoonify", methods=["POST"])
+@cross_origin(origins=['http://localhost:3000'])
+def cartoonify():
     """
     lambda handler to execute the image transformation
     """
     # warming up the lambda
-    if event.get("source") in ["aws.events", "serverless-plugin-warmup"]:
-        print("Lambda is warm!")
-        return {}
+    # if event.get("source") in ["aws.events", "serverless-plugin-warmup"]:
+    #     print("Lambda is warm!")
+    #     return {}
 
-    data = json.loads(event["body"])
-    print("data keys :", data.keys())
+    data = request.json
+    # print("data keys :", data.keys())
     image = data["image"]
     image = image[image.find(",") + 1 :]
     dec = base64.b64decode(image + "===")
@@ -130,4 +136,10 @@ def lambda_handler(event, context):
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
         },
+
+
     }
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

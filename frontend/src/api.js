@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = "this-won't word unless you put your api URL";
+const baseUrl = "http://localhost:5000/cartoonify";
 
 function transform(data) {
   return axios.post(baseUrl, data);

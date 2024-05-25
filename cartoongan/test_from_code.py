@@ -8,10 +8,25 @@ import torch
 import torchvision.transforms as transforms
 from torch.autograd import Variable
 
-from network.Transformer import Transformer
+from network.Transformer import Transformer 
+
+from tqdm import tqdm_notebook
+
+styles = ["Hosoda", "Hayao", "Shinkai", "Paprika"]
+
+# models = {}
+
+for style in tqdm_notebook(styles):
+#     model = Transformer()
+#     model.load_state_dict(torch.load(os.path.join("./cartoongan/pretrained_models/", style + '_net_G_float.pth')))
+#     model.eval()
+#     models[style] = model
+    print(os.path.join("./cartoongan/pretrained_models/", style + '_net_G_float.pth'))
+
+# print(models)
 
 
-def transform(models, style, input, load_size=450, gpu=-1):
+def transform(style, input, models, load_size=450, gpu=-1):
     model = models[style]
 
     if gpu > -1:
@@ -58,3 +73,6 @@ def transform(models, style, input, load_size=450, gpu=-1):
     output_image = Image.fromarray(output_image)
 
     return output_image
+
+
+print("finish")

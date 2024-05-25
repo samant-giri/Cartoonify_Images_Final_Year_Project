@@ -40,7 +40,7 @@ export default function StyleSelector(props) {
             .then((response) => {
               console.log("success");
               console.log(response.data);
-              props.setAfter(response.data.output);
+              props.setAfter(JSON.parse(response.data.body).output);
               props.setPercentage(0);
               props.setOpen(false);
             })

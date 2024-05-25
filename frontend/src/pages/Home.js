@@ -102,8 +102,8 @@ export default function Home() {
                 transform(data)
                   .then((response) => {
                     console.log("success");
-                    console.log(response.data);
-                    setAfter(response.data.output);
+                    console.log(JSON.parse(response.data.body).output);
+                    setAfter(JSON.parse(response.data.body).output);
                     setPercentage(0.0);
                     setOpen(false);
                   })
